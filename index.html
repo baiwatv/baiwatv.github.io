@@ -33,6 +33,8 @@ const CONFIG = {
   ],
   // 自动回复邮箱：用户发任意消息过去，自动回复最新【免翻墙】地址；没有就留空 ""
   contactEmail: "baiwagvv@gmail.com",
+  // 发布页永久地址（就是本页地址）；留空 "" 则自动用当前网址
+  publishPage: "https://baiwatv.github.io/",
   // 注意事项：一行一条，想改就改这里；不需要就留空数组 []
   notices: [
     "我们推荐 PC 和安卓手机用户使用 Chrome（谷歌）浏览器访问，iPhone 用户建议使用自带的 Safari 浏览器。",
@@ -98,6 +100,33 @@ const CONFIG = {
   .notice strong { color: #fff; }
   .notice ol { margin: 6px 0 0 20px; }
   .notice li { margin: 3px 0; }
+
+  .publish-card {
+    background: rgba(217, 161, 60, 0.10);
+    border: 1px solid rgba(217, 161, 60, 0.5);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+  }
+  .publish-warn {
+    font-size: 13.5px;
+    color: #f0c674;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .publish-url {
+    margin: 10px 0 10px;
+    background: var(--bg);
+    border: 1px dashed rgba(217, 161, 60, 0.5);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px; font-weight: 700;
+    text-align: center;
+    word-break: break-all;
+    color: #fff;
+  }
+  .publish-actions { display: flex; gap: 8px; }
+  .publish-actions .btn { flex: 1; text-align: center; }
 
   .section-title {
     font-size: 13px;
@@ -307,6 +336,14 @@ const CONFIG = {
       <li>手机浏览器里：点菜单或分享按钮，选「<strong>添加书签</strong>」或「<strong>添加到主屏幕</strong>」</li>
       <li>电脑：按 <strong>Ctrl+D</strong>（Mac 按 ⌘+D）</li>
     </ol>
+  </div>
+
+  <div class="publish-card" id="publish-box" style="display:none">
+    <div class="publish-warn">⚠️ 由于风控原因，网址经常被墙，务必保存下面的发布页地址：</div>
+    <div class="publish-url" id="publish-url"></div>
+    <div class="publish-actions">
+      <button class="btn primary" id="publish-copy" type="button">复制发布页地址</button>
+    </div>
   </div>
 
   <div id="domain-sections"></div>
@@ -637,6 +674,16 @@ const CONFIG = {
   } else {
     tipEl.textContent = "请提前把域名复制保存到手机备忘录，以防临时打不开。";
   }
+
+  /* ---------- 发布页地址（本页永久地址） ---------- */
+  var pubUrl = (CONFIG.publishPage && CONFIG.publishPage.trim())
+    ? CONFIG.publishPage.trim()
+    : location.href.split("#")[0].split("?")[0];
+  document.getElementById("publish-box").style.display = "";
+  document.getElementById("publish-url").textContent = pubUrl;
+  document.getElementById("publish-copy").addEventListener("click", function () {
+    copyText(pubUrl, "已复制发布页地址");
+  });
 
   /* ---------- 注意事项 ---------- */
   if (CONFIG.notices && CONFIG.notices.length) {
