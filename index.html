@@ -14,13 +14,16 @@
 const CONFIG = {
   siteName: "白袜帝国",                    // 站名，显示在页面顶部
   tagline: "官方唯一发布页 · 域名失效时来这里找新地址",
-  // 最新地址：会经常更换，换了就改这里（一行一个）
+  // 最新地址：会经常更换，换了就改这里（一行一个，下面三个是示例，请换成真实地址）
   latestDomains: [
-    "https://baiwatv.com",
-    "https://baiwatv.net",
+    "https://baiwa66.com",
+    "https://baiwa88.com",
+    "https://baiwatv.xyz",
   ],
   // 永久地址：长期不变的地址
   permanentDomains: [
+    "https://baiwatv.com",
+    "https://baiwatv.net",
   ],
   // 检测可用性用的小图路径：主站必须真实存在这张图。
   // 如果主站没有 favicon.ico，就换成站上任意一张真实图片的地址（如 "/logo.png"）
@@ -96,7 +99,15 @@ const CONFIG = {
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin: 26px 0 10px;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .section-desc {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-left: 8px;
+    font-weight: 400;
   }
   .retest {
     background: none; border: none;
@@ -335,8 +346,8 @@ const CONFIG = {
     return url;
   }
   var GROUPS = [
-    { title: "最新地址", domains: (CONFIG.latestDomains || []).map(normalize) },
-    { title: "永久地址", domains: (CONFIG.permanentDomains || []).map(normalize) },
+    { title: "永久地址", desc: "长期不变，认准这两个", domains: (CONFIG.permanentDomains || []).map(normalize) },
+    { title: "最新地址", desc: "会不定期更换，打不开时看永久地址", domains: (CONFIG.latestDomains || []).map(normalize) },
   ];
 
   /* ---------- Toast 提示 ---------- */
@@ -444,6 +455,12 @@ const CONFIG = {
       st.className = "section-title";
       var label = document.createElement("span");
       label.textContent = g.title;
+      if (g.desc) {
+        var d = document.createElement("span");
+        d.className = "section-desc";
+        d.textContent = g.desc;
+        label.appendChild(d);
+      }
       st.appendChild(label);
       if (!placedRetest) { st.appendChild(retestBtn); placedRetest = true; }
       sectionsEl.appendChild(st);
