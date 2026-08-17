@@ -5,16 +5,21 @@
 ## 域名变了怎么改（手动更新，1 分钟搞定）
 
 1. 打开本仓库的 `index.html`，点右上角铅笔图标（Edit）
-2. 找到文件开头 `CONFIG` 里的 `domains` 部分：
+2. 找到文件开头 `CONFIG` 里的地址部分，分两组：
 
    ```js
-   domains: [
+   // 最新地址：会经常更换，换了就改这里
+   latestDomains: [
      "https://example1.com",
-     "https://example2.com",
+   ],
+   // 永久地址：长期不变的域名
+   permanentDomains: [
+     "https://baiwatv.com",
+     "https://baiwatv.net",
    ],
    ```
 
-3. 改成新域名（一行一个，每行末尾保留逗号），顺手把下面的 `updated` 改成当天日期
+3. 改成新域名（一行一个，每行末尾保留逗号），顺手把下面的 `updated` 改成当天日期。哪组留空 `[]`，页面上对应板块就自动隐藏
 4. 点绿色的 **Commit changes** 按钮
 
 保存后 1~2 分钟，发布页自动更新，用户刷新即可看到新域名。

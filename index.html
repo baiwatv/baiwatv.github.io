@@ -14,7 +14,11 @@
 const CONFIG = {
   siteName: "白袜帝国",                    // 站名，显示在页面顶部
   tagline: "官方唯一发布页 · 域名失效时来这里找新地址",
-  domains: [
+  // 最新地址：会经常更换，换了就改这里（一行一个，免翻墙地址放这里）
+  latestDomains: [
+  ],
+  // 永久地址：长期不变的域名
+  permanentDomains: [
     "https://baiwatv.com",
     "https://baiwatv.net",
   ],
@@ -288,12 +292,8 @@ const CONFIG = {
     </ol>
   </div>
 
-  <div class="section-title">
-    <span>永久地址</span>
-    <button class="retest" id="retest-btn" type="button">↻ 重新检测</button>
-  </div>
-  <div id="domain-list"></div>
-  <button class="copy-all" id="copy-all-btn" type="button">📋 一键复制全部域名（保存到备忘录以防万一）</button>
+  <div id="domain-sections"></div>
+  <button class="copy-all" id="copy-all-btn" type="button">📋 一键复制全部地址（保存到备忘录以防万一）</button>
 
   <div id="contact-section" style="display:none">
     <div class="section-title"><span>永久联系方式</span></div>
@@ -334,7 +334,10 @@ const CONFIG = {
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
     return url;
   }
-  var domains = CONFIG.domains.map(normalize);
+  var GROUPS = [
+    { title: "最新地址", domains: (CONFIG.latestDomains || []).map(normalize) },
+    { title: "永久地址", domains: (CONFIG.permanentDomains || []).map(normalize) },
+  ];
 
   /* ---------- Toast 提示 ---------- */
   var toastTimer = null;
@@ -371,17 +374,20 @@ const CONFIG = {
     }
   }
 
-  /* ---------- 域名卡片渲染 ---------- */
-  var listEl = document.getElementById("domain-list");
+  /* ---------- 域名卡片渲染：最新地址 + 永久地址 两个板块 ---------- */
+  var sectionsEl = document.getElementById("domain-sections");
   var rows = [];
+
+  var retestBtn = document.createElement("button");
+  retestBtn.className = "retest";
+  retestBtn.type = "button";
+  retestBtn.textContent = "↻ 重新检测";
 
   function displayHost(url) {
     return url.replace(/^https?:\/\//, "").replace(/\/+$/, "");
   }
 
-  function render() {
-    listEl.innerHTML = "";
-    rows = domains.map(function (url) {
+  function buildCard(url) {
       var card = document.createElement("div");
       card.className = "card";
 
@@ -423,9 +429,25 @@ const CONFIG = {
       card.appendChild(dot);
       card.appendChild(info);
       card.appendChild(actions);
-      listEl.appendChild(card);
 
-      return { url: url, card: card, dot: dot, meta: meta, ms: null };
+      rows.push({ url: url, card: card, dot: dot, meta: meta, ms: null });
+      return card;
+  }
+
+  function render() {
+    sectionsEl.innerHTML = "";
+    rows = [];
+    var placedRetest = false;
+    GROUPS.forEach(function (g) {
+      if (!g.domains.length) return;
+      var st = document.createElement("div");
+      st.className = "section-title";
+      var label = document.createElement("span");
+      label.textContent = g.title;
+      st.appendChild(label);
+      if (!placedRetest) { st.appendChild(retestBtn); placedRetest = true; }
+      sectionsEl.appendChild(st);
+      g.domains.forEach(function (url) { sectionsEl.appendChild(buildCard(url)); });
     });
   }
 
@@ -511,7 +533,6 @@ const CONFIG = {
     }
   }
 
-  var retestBtn = document.getElementById("retest-btn");
   function testAll() {
     var gen = ++probeGen;
     retestBtn.disabled = true;
@@ -527,10 +548,14 @@ const CONFIG = {
   /* ---------- 事件 ---------- */
   retestBtn.addEventListener("click", testAll);
   document.getElementById("copy-all-btn").addEventListener("click", function () {
-    var text = CONFIG.siteName + " 永久地址（" + CONFIG.updated + "）\n" +
-      domains.join("\n") +
-      "\n发布页（收藏这个，永久不变）：" + location.href.split("#")[0].split("?")[0];
-    copyText(text, "已复制全部域名");
+    var lines = [CONFIG.siteName + " 地址（" + CONFIG.updated + "）"];
+    GROUPS.forEach(function (g) {
+      if (!g.domains.length) return;
+      lines.push(g.title + "：");
+      g.domains.forEach(function (u) { lines.push(u); });
+    });
+    lines.push("发布页（收藏这个，永久不变）：" + location.href.split("#")[0].split("?")[0]);
+    copyText(lines.join("\n"), "已复制全部地址");
   });
 
   /* ---------- 永久联系方式：Telegram + 备用邮箱 ---------- */
