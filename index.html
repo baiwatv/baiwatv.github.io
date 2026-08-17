@@ -19,11 +19,14 @@ const CONFIG = {
     "https://example2.com",
     "https://example3.com",
   ],
-  // 没有可以留空数组 []；有几个写几个
+  // 检测可用性用的小图路径：主站必须真实存在这张图。
+  // 如果主站没有 favicon.ico，就换成站上任意一张真实图片的地址（如 "/logo.png"）
+  probePath: "/favicon.ico",
+  // Telegram 频道/群链接，没有可以留空数组 []；有几个写几个
   telegram: [
     { label: "TG 官方频道", url: "https://t.me/example" },
   ],
-  contactEmail: "",                        // 备用联系邮箱，没有就留空 ""
+  contactEmail: "",                        // 备用联系邮箱，会显示在联系方式里；没有就留空 ""
   updated: "2026-08-17",                   // 每次改域名顺手把日期改成当天
 };
 /* ==============================================================
@@ -82,6 +85,8 @@ const CONFIG = {
     color: #c6d2ff;
   }
   .notice strong { color: #fff; }
+  .notice ol { margin: 6px 0 0 20px; }
+  .notice li { margin: 3px 0; }
 
   .section-title {
     font-size: 13px;
@@ -99,6 +104,7 @@ const CONFIG = {
     font-family: inherit;
   }
   .retest:active { opacity: 0.6; }
+  .retest:disabled { color: var(--text-dim); cursor: default; }
 
   .card {
     background: var(--card);
@@ -118,6 +124,7 @@ const CONFIG = {
   }
   .status.checking { animation: pulse 1s infinite; }
   .status.ok { background: var(--ok); }
+  .status.warn { background: var(--warn); }
   .status.bad { background: var(--bad); }
   @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 
@@ -131,6 +138,7 @@ const CONFIG = {
   }
   .domain-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
   .domain-meta .ok-text { color: var(--ok); }
+  .domain-meta .warn-text { color: var(--warn); }
   .domain-meta .bad-text { color: var(--bad); }
   .best-tag {
     display: inline-block;
@@ -192,7 +200,8 @@ const CONFIG = {
     flex-shrink: 0;
   }
   .tg-icon svg { width: 20px; height: 20px; fill: #fff; }
-  .tg-label { flex: 1; font-size: 14.5px; font-weight: 600; }
+  .tg-icon.mail { background: #64748b; color: #fff; font-size: 17px; }
+  .tg-label { flex: 1; font-size: 14.5px; font-weight: 600; word-break: break-all; }
   .tg-arrow { color: var(--text-dim); font-size: 18px; }
 
   .tips {
@@ -218,6 +227,8 @@ const CONFIG = {
     position: fixed;
     left: 50%; bottom: 40px;
     transform: translateX(-50%) translateY(20px);
+    width: max-content;
+    max-width: calc(100vw - 40px);
     background: #222a3d;
     color: #fff;
     padding: 10px 22px;
@@ -246,7 +257,12 @@ const CONFIG = {
   </header>
 
   <div class="notice">
-    ⭐ <strong>请立即收藏本页</strong>：电脑按 <strong>Ctrl+D</strong>（Mac 按 ⌘+D），手机用浏览器菜单里的「添加书签」或「添加到主屏幕」。无论域名怎么变，本页地址永久不变。
+    ⭐ <strong>请立即收藏本页</strong>——无论域名怎么变，本页地址永久不变。
+    <ol>
+      <li>在 <strong>Telegram</strong> 里打开的：先点右上角 <strong>⋯</strong>（或 <strong>⋮</strong>），选「<strong>在浏览器中打开</strong>」</li>
+      <li>手机浏览器里：点菜单或分享按钮，选「<strong>添加书签</strong>」或「<strong>添加到主屏幕</strong>」</li>
+      <li>电脑：按 <strong>Ctrl+D</strong>（Mac 按 ⌘+D）</li>
+    </ol>
   </div>
 
   <div class="section-title">
@@ -256,17 +272,17 @@ const CONFIG = {
   <div id="domain-list"></div>
   <button class="copy-all" id="copy-all-btn" type="button">📋 一键复制全部域名（保存到备忘录以防万一）</button>
 
-  <div id="tg-section" style="display:none">
+  <div id="contact-section" style="display:none">
     <div class="section-title"><span>永久联系方式</span></div>
-    <div id="tg-list"></div>
+    <div id="contact-list"></div>
   </div>
 
   <div class="tips">
     <strong style="font-size:13.5px">💡 温馨提示</strong>
     <ul>
-      <li>如果所有域名都打不开，请通过上方 <strong>Telegram</strong> 获取最新地址。</li>
+      <li id="tip-fallback"></li>
       <li>请以<strong>本页</strong>公布的域名为准，谨防假冒仿冒站。</li>
-      <li>建议把域名复制保存一份到手机备忘录。</li>
+      <li>本页跟 Telegram 一样需要<strong>科学上网</strong>才能打开，建议把域名「一键复制」存到手机备忘录，随时能查。</li>
     </ul>
   </div>
 
@@ -285,6 +301,18 @@ const CONFIG = {
   document.getElementById("updated").textContent = CONFIG.updated;
   document.getElementById("logo").textContent = (CONFIG.siteName || "?").trim().charAt(0).toUpperCase();
   document.title = CONFIG.siteName + " 官方发布页 · 请收藏本页";
+
+  var now = (window.performance && performance.now)
+    ? function () { return performance.now(); }
+    : function () { return Date.now(); };
+
+  /* ---------- 域名归一化：漏写协议头自动补 https:// ---------- */
+  function normalize(url) {
+    url = url.trim().replace(/\/+$/, "");
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+    return url;
+  }
+  var domains = CONFIG.domains.map(normalize);
 
   /* ---------- Toast 提示 ---------- */
   var toastTimer = null;
@@ -331,8 +359,7 @@ const CONFIG = {
 
   function render() {
     listEl.innerHTML = "";
-    rows = CONFIG.domains.map(function (url) {
-      url = url.trim().replace(/\/+$/, "");
+    rows = domains.map(function (url) {
       var card = document.createElement("div");
       card.className = "card";
 
@@ -381,33 +408,68 @@ const CONFIG = {
   }
 
   /* ---------- 可用性检测 ----------
-     用 no-cors 请求目标站图标：能响应 = 域名可达；超时/网络错误 = 不可达。
-     只能粗略判断连通性，不代表页面内容一定正常。 */
-  function probe(row) {
-    row.dot.className = "status checking";
-    row.meta.textContent = "检测中…";
-    row.meta.className = "domain-meta";
-    row.ms = null;
+     第一步用图片探测（加载主站上一张真实存在的小图）：图片能加载 = 站点真的活着；
+     停放页/网关错误页返回的是网页不是图片，不会误报「可用」。
+     图片探测失败时，退一步用 no-cors 请求判断域名是否「有响应但内容未必正常」。
+     加了代次（generation）防护：点重新检测后，旧一轮迟到的结果一律丢弃。 */
+  var probeGen = 0;
+  var PROBE_TIMEOUT = 6000;
 
+  function probeImage(url) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      var t0 = now();
+      var done = false;
+      var timer = setTimeout(function () { settle(false); }, PROBE_TIMEOUT);
+      function settle(ok) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        img.onload = img.onerror = null;
+        resolve(ok ? Math.round(now() - t0) : -1);
+      }
+      img.onload = function () { settle(true); };
+      img.onerror = function () { settle(false); };
+      img.src = url + (CONFIG.probePath || "/favicon.ico") + "?_t=" + Date.now();
+    });
+  }
+
+  function probeFetch(url) {
+    if (!window.fetch) return Promise.resolve(false);
     var controller = ("AbortController" in window) ? new AbortController() : null;
-    var timer = controller ? setTimeout(function () { controller.abort(); }, 6000) : null;
-    var t0 = performance.now();
-    var target = row.url + "/favicon.ico?_t=" + Date.now();
-
+    var timer = controller ? setTimeout(function () { controller.abort(); }, PROBE_TIMEOUT) : null;
     var opts = { mode: "no-cors", cache: "no-store" };
     if (controller) opts.signal = controller.signal;
+    return fetch(url + "/?_t=" + Date.now(), opts).then(
+      function () { if (timer) clearTimeout(timer); return true; },
+      function () { if (timer) clearTimeout(timer); return false; }
+    );
+  }
 
-    return fetch(target, opts)
-      .then(function () {
-        row.ms = Math.round(performance.now() - t0);
-        row.dot.className = "status ok";
-        row.meta.innerHTML = '<span class="ok-text">✓ 可用</span> · 响应 ' + row.ms + " ms";
-      })
-      .catch(function () {
-        row.dot.className = "status bad";
-        row.meta.innerHTML = '<span class="bad-text">✗ 暂时无法连接</span>（也可能是你的网络问题，可直接点访问试试）';
-      })
-      .then(function () { if (timer) clearTimeout(timer); });
+  function setStatus(row, cls, html) {
+    row.dot.className = "status" + (cls ? " " + cls : "");
+    row.meta.innerHTML = html;
+  }
+
+  function probe(row, gen) {
+    setStatus(row, "checking", "检测中…");
+    row.ms = null;
+    return probeImage(row.url).then(function (ms) {
+      if (gen !== probeGen) return;
+      if (ms >= 0) {
+        row.ms = ms;
+        setStatus(row, "ok", '<span class="ok-text">✓ 连接正常</span> · 响应 ' + ms + " ms");
+        return;
+      }
+      return probeFetch(row.url).then(function (alive) {
+        if (gen !== probeGen) return;
+        if (alive) {
+          setStatus(row, "warn", '<span class="warn-text">△ 有响应但未必正常</span>，点「访问」确认');
+        } else {
+          setStatus(row, "bad", '<span class="bad-text">✗ 暂时无法连接</span>（也可能是你的网络波动，可点「访问」试试）');
+        }
+      });
+    });
   }
 
   function markBest() {
@@ -427,39 +489,67 @@ const CONFIG = {
     }
   }
 
+  var retestBtn = document.getElementById("retest-btn");
   function testAll() {
-    if (!window.fetch) {
-      rows.forEach(function (r) { r.meta.textContent = "请直接点「访问」试试"; r.dot.className = "status"; });
-      return;
-    }
-    Promise.all(rows.map(probe)).then(markBest);
+    var gen = ++probeGen;
+    retestBtn.disabled = true;
+    retestBtn.textContent = "检测中…";
+    Promise.all(rows.map(function (r) { return probe(r, gen); })).then(function () {
+      if (gen !== probeGen) return;
+      markBest();
+      retestBtn.disabled = false;
+      retestBtn.textContent = "↻ 重新检测";
+    });
   }
 
   /* ---------- 事件 ---------- */
-  document.getElementById("retest-btn").addEventListener("click", testAll);
+  retestBtn.addEventListener("click", testAll);
   document.getElementById("copy-all-btn").addEventListener("click", function () {
     var text = CONFIG.siteName + " 最新域名（" + CONFIG.updated + "）\n" +
-      CONFIG.domains.map(function (u) { return u.trim(); }).join("\n") +
+      domains.join("\n") +
       "\n发布页（收藏这个，永久不变）：" + location.href.split("#")[0].split("?")[0];
     copyText(text, "已复制全部域名");
   });
 
-  /* ---------- Telegram ---------- */
-  if (CONFIG.telegram && CONFIG.telegram.length) {
-    document.getElementById("tg-section").style.display = "";
-    var tgList = document.getElementById("tg-list");
-    CONFIG.telegram.forEach(function (item) {
-      var a = document.createElement("a");
-      a.className = "tg-card";
-      a.href = item.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.innerHTML =
-        '<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.41-.83.41z"/></svg></span>' +
-        '<span class="tg-label"></span><span class="tg-arrow">›</span>';
-      a.querySelector(".tg-label").textContent = item.label;
-      tgList.appendChild(a);
-    });
+  /* ---------- 永久联系方式：Telegram + 备用邮箱 ---------- */
+  var hasTg = CONFIG.telegram && CONFIG.telegram.length > 0;
+  var hasMail = CONFIG.contactEmail && CONFIG.contactEmail.trim() !== "";
+  if (hasTg || hasMail) {
+    document.getElementById("contact-section").style.display = "";
+    var contactList = document.getElementById("contact-list");
+    if (hasTg) {
+      CONFIG.telegram.forEach(function (item) {
+        var a = document.createElement("a");
+        a.className = "tg-card";
+        a.href = item.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.innerHTML =
+          '<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.41-.83.41z"/></svg></span>' +
+          '<span class="tg-label"></span><span class="tg-arrow">›</span>';
+        a.querySelector(".tg-label").textContent = item.label;
+        contactList.appendChild(a);
+      });
+    }
+    if (hasMail) {
+      var mail = CONFIG.contactEmail.trim();
+      var m = document.createElement("a");
+      m.className = "tg-card";
+      m.href = "mailto:" + mail;
+      m.innerHTML = '<span class="tg-icon mail">✉</span><span class="tg-label"></span><span class="tg-arrow">›</span>';
+      m.querySelector(".tg-label").textContent = "备用邮箱：" + mail;
+      contactList.appendChild(m);
+    }
+  }
+
+  /* ---------- 兜底提示随配置变化 ---------- */
+  var tipEl = document.getElementById("tip-fallback");
+  if (hasTg) {
+    tipEl.textContent = "如果所有域名都打不开，请通过上方 Telegram 获取最新地址。";
+  } else if (hasMail) {
+    tipEl.textContent = "如果所有域名都打不开，请发邮件到上方备用邮箱获取最新地址。";
+  } else {
+    tipEl.textContent = "请提前把域名复制保存到手机备忘录，以防临时打不开。";
   }
 
   /* ---------- 启动 ---------- */
