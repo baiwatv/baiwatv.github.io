@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>官方发布页 · 请收藏本页</title>
+<script>
+/* ==============================================================
+   ↓↓↓ 只需要改这一段 ↓↓↓
+   域名变了：改 domains 里的网址（一行一个，注意行尾逗号）
+   改完在 GitHub 网页上点 Commit changes，1~2 分钟后页面自动生效
+   ============================================================== */
+const CONFIG = {
+  siteName: "站点名称",                    // 站名，显示在页面顶部
+  tagline: "官方唯一发布页 · 域名失效时来这里找新地址",
+  domains: [
+    "https://example1.com",
+    "https://example2.com",
+    "https://example3.com",
+  ],
+  // 没有可以留空数组 []；有几个写几个
+  telegram: [
+    { label: "TG 官方频道", url: "https://t.me/example" },
+  ],
+  contactEmail: "",                        // 备用联系邮箱，没有就留空 ""
+  updated: "2026-08-17",                   // 每次改域名顺手把日期改成当天
+};
+/* ==============================================================
+   ↑↑↑ 只需要改这一段 ↑↑↑，下面的都不用动
+   ============================================================== */
+</script>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --card: #141822;
+    --card-hover: #1a1f2c;
+    --border: #232a3a;
+    --text: #e8ebf2;
+    --text-dim: #8b93a7;
+    --accent: #5b7cfa;
+    --accent-soft: rgba(91, 124, 250, 0.14);
+    --ok: #34c77b;
+    --ok-soft: rgba(52, 199, 123, 0.12);
+    --bad: #e05656;
+    --bad-soft: rgba(224, 86, 86, 0.12);
+    --warn: #d9a13c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+  header { text-align: center; margin-bottom: 28px; }
+  .logo {
+    width: 56px; height: 56px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #8a5bfa);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 700; color: #fff;
+  }
+  h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+  .tagline { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
+
+  .notice {
+    background: var(--accent-soft);
+    border: 1px solid rgba(91, 124, 250, 0.35);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    margin-bottom: 24px;
+    color: #c6d2ff;
+  }
+  .notice strong { color: #fff; }
+
+  .section-title {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 26px 0 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .retest {
+    background: none; border: none;
+    color: var(--accent); font-size: 12.5px;
+    cursor: pointer; padding: 4px 6px;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+  }
+  .retest:active { opacity: 0.6; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+    transition: background 0.15s;
+  }
+  .card.best { border-color: rgba(52, 199, 123, 0.5); }
+  .status {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-dim);
+  }
+  .status.checking { animation: pulse 1s infinite; }
+  .status.ok { background: var(--ok); }
+  .status.bad { background: var(--bad); }
+  @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  .domain-info { flex: 1; min-width: 0; }
+  .domain-url {
+    font-size: 15px; font-weight: 600;
+    word-break: break-all;
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+  }
+  .domain-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .domain-meta .ok-text { color: var(--ok); }
+  .domain-meta .bad-text { color: var(--bad); }
+  .best-tag {
+    display: inline-block;
+    background: var(--ok-soft); color: var(--ok);
+    font-size: 11px; font-weight: 600;
+    padding: 1px 8px; border-radius: 20px;
+    margin-left: 6px; vertical-align: 1px;
+  }
+
+  .actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--card-hover);
+    color: var(--text);
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .btn:active { opacity: 0.7; }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .copy-all {
+    width: 100%;
+    margin-top: 6px;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .copy-all:active { opacity: 0.7; }
+
+  .tg-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none; color: var(--text);
+  }
+  .tg-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #2aabee;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tg-icon svg { width: 20px; height: 20px; fill: #fff; }
+  .tg-label { flex: 1; font-size: 14.5px; font-weight: 600; }
+  .tg-arrow { color: var(--text-dim); font-size: 18px; }
+
+  .tips {
+    margin-top: 30px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .tips li { margin: 6px 0 6px 18px; }
+  .tips strong { color: var(--text); }
+
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%; bottom: 40px;
+    transform: translateX(-50%) translateY(20px);
+    background: #222a3d;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 420px) {
+    .card { flex-wrap: wrap; }
+    .actions { width: 100%; }
+    .actions .btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo" id="logo"></div>
+    <h1 id="site-name"></h1>
+    <p class="tagline" id="tagline"></p>
+  </header>
+
+  <div class="notice">
+    ⭐ <strong>请立即收藏本页</strong>：电脑按 <strong>Ctrl+D</strong>（Mac 按 ⌘+D），手机用浏览器菜单里的「添加书签」或「添加到主屏幕」。无论域名怎么变，本页地址永久不变。
+  </div>
+
+  <div class="section-title">
+    <span>最新可用域名</span>
+    <button class="retest" id="retest-btn" type="button">↻ 重新检测</button>
+  </div>
+  <div id="domain-list"></div>
+  <button class="copy-all" id="copy-all-btn" type="button">📋 一键复制全部域名（保存到备忘录以防万一）</button>
+
+  <div id="tg-section" style="display:none">
+    <div class="section-title"><span>永久联系方式</span></div>
+    <div id="tg-list"></div>
+  </div>
+
+  <div class="tips">
+    <strong style="font-size:13.5px">💡 温馨提示</strong>
+    <ul>
+      <li>如果所有域名都打不开，请通过上方 <strong>Telegram</strong> 获取最新地址。</li>
+      <li>请以<strong>本页</strong>公布的域名为准，谨防假冒仿冒站。</li>
+      <li>建议把域名复制保存一份到手机备忘录。</li>
+    </ul>
+  </div>
+
+  <footer>最后更新：<span id="updated"></span></footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- 渲染基本信息 ---------- */
+  document.getElementById("site-name").textContent = CONFIG.siteName;
+  document.getElementById("tagline").textContent = CONFIG.tagline;
+  document.getElementById("updated").textContent = CONFIG.updated;
+  document.getElementById("logo").textContent = (CONFIG.siteName || "?").trim().charAt(0).toUpperCase();
+  document.title = CONFIG.siteName + " 官方发布页 · 请收藏本页";
+
+  /* ---------- Toast 提示 ---------- */
+  var toastTimer = null;
+  function showToast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+
+  /* ---------- 复制（新 API + 老浏览器双保险） ---------- */
+  function copyText(text, okMsg) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      showToast(ok ? okMsg : "复制失败，请长按手动复制");
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(
+        function () { showToast(okMsg); },
+        fallback
+      );
+    } else {
+      fallback();
+    }
+  }
+
+  /* ---------- 域名卡片渲染 ---------- */
+  var listEl = document.getElementById("domain-list");
+  var rows = [];
+
+  function displayHost(url) {
+    return url.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  }
+
+  function render() {
+    listEl.innerHTML = "";
+    rows = CONFIG.domains.map(function (url) {
+      url = url.trim().replace(/\/+$/, "");
+      var card = document.createElement("div");
+      card.className = "card";
+
+      var dot = document.createElement("span");
+      dot.className = "status checking";
+
+      var info = document.createElement("div");
+      info.className = "domain-info";
+      var a = document.createElement("a");
+      a.className = "domain-url";
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = displayHost(url);
+      var meta = document.createElement("div");
+      meta.className = "domain-meta";
+      meta.textContent = "检测中…";
+      info.appendChild(a);
+      info.appendChild(meta);
+
+      var actions = document.createElement("div");
+      actions.className = "actions";
+      var go = document.createElement("a");
+      go.className = "btn primary";
+      go.href = url;
+      go.target = "_blank";
+      go.rel = "noopener noreferrer";
+      go.textContent = "访问";
+      var cp = document.createElement("button");
+      cp.className = "btn";
+      cp.type = "button";
+      cp.textContent = "复制";
+      cp.addEventListener("click", function () {
+        copyText(displayHost(url), "已复制 " + displayHost(url));
+      });
+      actions.appendChild(go);
+      actions.appendChild(cp);
+
+      card.appendChild(dot);
+      card.appendChild(info);
+      card.appendChild(actions);
+      listEl.appendChild(card);
+
+      return { url: url, card: card, dot: dot, meta: meta, ms: null };
+    });
+  }
+
+  /* ---------- 可用性检测 ----------
+     用 no-cors 请求目标站图标：能响应 = 域名可达；超时/网络错误 = 不可达。
+     只能粗略判断连通性，不代表页面内容一定正常。 */
+  function probe(row) {
+    row.dot.className = "status checking";
+    row.meta.textContent = "检测中…";
+    row.meta.className = "domain-meta";
+    row.ms = null;
+
+    var controller = ("AbortController" in window) ? new AbortController() : null;
+    var timer = controller ? setTimeout(function () { controller.abort(); }, 6000) : null;
+    var t0 = performance.now();
+    var target = row.url + "/favicon.ico?_t=" + Date.now();
+
+    var opts = { mode: "no-cors", cache: "no-store" };
+    if (controller) opts.signal = controller.signal;
+
+    return fetch(target, opts)
+      .then(function () {
+        row.ms = Math.round(performance.now() - t0);
+        row.dot.className = "status ok";
+        row.meta.innerHTML = '<span class="ok-text">✓ 可用</span> · 响应 ' + row.ms + " ms";
+      })
+      .catch(function () {
+        row.dot.className = "status bad";
+        row.meta.innerHTML = '<span class="bad-text">✗ 暂时无法连接</span>（也可能是你的网络问题，可直接点访问试试）';
+      })
+      .then(function () { if (timer) clearTimeout(timer); });
+  }
+
+  function markBest() {
+    var best = null;
+    rows.forEach(function (r) {
+      r.card.classList.remove("best");
+      var old = r.card.querySelector(".best-tag");
+      if (old) old.remove();
+      if (r.ms !== null && (best === null || r.ms < best.ms)) best = r;
+    });
+    if (best) {
+      best.card.classList.add("best");
+      var tag = document.createElement("span");
+      tag.className = "best-tag";
+      tag.textContent = "推荐";
+      best.card.querySelector(".domain-url").appendChild(tag);
+    }
+  }
+
+  function testAll() {
+    if (!window.fetch) {
+      rows.forEach(function (r) { r.meta.textContent = "请直接点「访问」试试"; r.dot.className = "status"; });
+      return;
+    }
+    Promise.all(rows.map(probe)).then(markBest);
+  }
+
+  /* ---------- 事件 ---------- */
+  document.getElementById("retest-btn").addEventListener("click", testAll);
+  document.getElementById("copy-all-btn").addEventListener("click", function () {
+    var text = CONFIG.siteName + " 最新域名（" + CONFIG.updated + "）\n" +
+      CONFIG.domains.map(function (u) { return u.trim(); }).join("\n") +
+      "\n发布页（收藏这个，永久不变）：" + location.href.split("#")[0].split("?")[0];
+    copyText(text, "已复制全部域名");
+  });
+
+  /* ---------- Telegram ---------- */
+  if (CONFIG.telegram && CONFIG.telegram.length) {
+    document.getElementById("tg-section").style.display = "";
+    var tgList = document.getElementById("tg-list");
+    CONFIG.telegram.forEach(function (item) {
+      var a = document.createElement("a");
+      a.className = "tg-card";
+      a.href = item.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML =
+        '<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.41-.83.41z"/></svg></span>' +
+        '<span class="tg-label"></span><span class="tg-arrow">›</span>';
+      a.querySelector(".tg-label").textContent = item.label;
+      tgList.appendChild(a);
+    });
+  }
+
+  /* ---------- 启动 ---------- */
+  render();
+  testAll();
+})();
+</script>
+</body>
+</html>
