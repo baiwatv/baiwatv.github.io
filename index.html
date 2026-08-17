@@ -33,6 +33,12 @@ const CONFIG = {
   ],
   // 自动回复邮箱：用户发任意消息过去，自动回复最新【免翻墙】地址；没有就留空 ""
   contactEmail: "baiwagvv@gmail.com",
+  // 注意事项：一行一条，想改就改这里；不需要就留空数组 []
+  notices: [
+    "我们推荐 PC 和安卓手机用户使用 Chrome（谷歌）浏览器访问，iPhone 用户建议使用自带的 Safari 浏览器。",
+    "大陆地区用户建议使用 VPN 或代理访问永久地址。",
+    "大陆地区用户强烈建议截图保存当前页面。",
+  ],
   updated: "2026-08-17",                   // 每次改域名顺手把日期改成当天
 };
 /* ==============================================================
@@ -309,6 +315,11 @@ const CONFIG = {
   <div id="contact-section" style="display:none">
     <div class="section-title"><span>永久联系方式</span></div>
     <div id="contact-list"></div>
+  </div>
+
+  <div class="tips" id="notice-box" style="display:none">
+    <strong style="font-size:13.5px">📌 注意事项</strong>
+    <ul id="notice-list"></ul>
   </div>
 
   <div class="tips">
@@ -625,6 +636,17 @@ const CONFIG = {
     tipEl.textContent = "如果所有域名都打不开，请通过上方 Telegram 获取最新地址。";
   } else {
     tipEl.textContent = "请提前把域名复制保存到手机备忘录，以防临时打不开。";
+  }
+
+  /* ---------- 注意事项 ---------- */
+  if (CONFIG.notices && CONFIG.notices.length) {
+    document.getElementById("notice-box").style.display = "";
+    var noticeList = document.getElementById("notice-list");
+    CONFIG.notices.forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      noticeList.appendChild(li);
+    });
   }
 
   /* ---------- 启动 ---------- */
