@@ -106,7 +106,7 @@ const CONFIG = {
     border: 1px solid rgba(217, 161, 60, 0.5);
     border-radius: 12px;
     padding: 14px 16px;
-    margin-bottom: 24px;
+    margin: 26px 0 10px;
   }
   .publish-warn {
     font-size: 13.5px;
@@ -338,20 +338,20 @@ const CONFIG = {
     </ol>
   </div>
 
-  <div class="publish-card" id="publish-box" style="display:none">
-    <div class="publish-warn">⚠️ 由于风控原因，网址经常被墙，务必保存下面的发布页地址：</div>
-    <div class="publish-url" id="publish-url"></div>
-    <div class="publish-actions">
-      <button class="btn primary" id="publish-copy" type="button">复制发布页地址</button>
-    </div>
-  </div>
-
   <div id="domain-sections"></div>
   <button class="copy-all" id="copy-all-btn" type="button">📋 一键复制全部地址（保存到备忘录以防万一）</button>
 
   <div id="contact-section" style="display:none">
     <div class="section-title"><span>永久联系方式</span></div>
     <div id="contact-list"></div>
+  </div>
+
+  <div class="publish-card" id="publish-box" style="display:none">
+    <div class="publish-warn">⚠️ 由于风控原因，网址经常被墙，务必保存下面的发布页地址：</div>
+    <div class="publish-url" id="publish-url"></div>
+    <div class="publish-actions">
+      <button class="btn primary" id="publish-copy" type="button">复制发布页地址</button>
+    </div>
   </div>
 
   <div class="tips" id="notice-box" style="display:none">
