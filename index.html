@@ -16,6 +16,7 @@ const CONFIG = {
   tagline: "官方唯一发布页 · 域名失效时来这里找新地址",
   domains: [
     "https://baiwatv.com",
+    "https://baiwatv.net",
   ],
   // 检测可用性用的小图路径：主站必须真实存在这张图。
   // 如果主站没有 favicon.ico，就换成站上任意一张真实图片的地址（如 "/logo.png"）
@@ -288,7 +289,7 @@ const CONFIG = {
   </div>
 
   <div class="section-title">
-    <span>最新可用域名</span>
+    <span>永久地址</span>
     <button class="retest" id="retest-btn" type="button">↻ 重新检测</button>
   </div>
   <div id="domain-list"></div>
@@ -526,7 +527,7 @@ const CONFIG = {
   /* ---------- 事件 ---------- */
   retestBtn.addEventListener("click", testAll);
   document.getElementById("copy-all-btn").addEventListener("click", function () {
-    var text = CONFIG.siteName + " 最新域名（" + CONFIG.updated + "）\n" +
+    var text = CONFIG.siteName + " 永久地址（" + CONFIG.updated + "）\n" +
       domains.join("\n") +
       "\n发布页（收藏这个，永久不变）：" + location.href.split("#")[0].split("?")[0];
     copyText(text, "已复制全部域名");
