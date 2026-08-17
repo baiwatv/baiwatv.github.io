@@ -12,21 +12,19 @@
    改完在 GitHub 网页上点 Commit changes，1~2 分钟后页面自动生效
    ============================================================== */
 const CONFIG = {
-  siteName: "站点名称",                    // 站名，显示在页面顶部
+  siteName: "白袜帝国",                    // 站名，显示在页面顶部
   tagline: "官方唯一发布页 · 域名失效时来这里找新地址",
   domains: [
-    "https://example1.com",
-    "https://example2.com",
-    "https://example3.com",
+    "https://baiwatv.com",
   ],
   // 检测可用性用的小图路径：主站必须真实存在这张图。
   // 如果主站没有 favicon.ico，就换成站上任意一张真实图片的地址（如 "/logo.png"）
   probePath: "/favicon.ico",
   // Telegram 频道/群链接，没有可以留空数组 []；有几个写几个
   telegram: [
-    { label: "TG 官方频道", url: "https://t.me/example" },
   ],
-  contactEmail: "",                        // 备用联系邮箱，会显示在联系方式里；没有就留空 ""
+  // 自动回复邮箱：用户发任意消息过去，自动回复最新【免翻墙】地址；没有就留空 ""
+  contactEmail: "baiwagvv@gmail.com",
   updated: "2026-08-17",                   // 每次改域名顺手把日期改成当天
 };
 /* ==============================================================
@@ -64,13 +62,12 @@ const CONFIG = {
     padding: 40px 20px 60px;
   }
   header { text-align: center; margin-bottom: 28px; }
-  .logo {
-    width: 56px; height: 56px;
-    margin: 0 auto 16px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--accent), #8a5bfa);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px; font-weight: 700; color: #fff;
+  .logo-img {
+    display: block;
+    max-width: 300px;
+    width: 78%;
+    height: auto;
+    margin: 0 auto 12px;
   }
   h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
   .tagline { color: var(--text-dim); font-size: 14px; margin-top: 6px; }
@@ -204,6 +201,31 @@ const CONFIG = {
   .tg-label { flex: 1; font-size: 14.5px; font-weight: 600; word-break: break-all; }
   .tg-arrow { color: var(--text-dim); font-size: 18px; }
 
+  .mail-card {
+    background: var(--card);
+    border: 1px solid rgba(91, 124, 250, 0.45);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .mail-head { display: flex; gap: 12px; align-items: flex-start; }
+  .mail-title { font-size: 14.5px; font-weight: 600; }
+  .mail-desc { font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+  .mail-desc b { color: var(--text); }
+  .mail-addr {
+    margin: 12px 0 10px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px; font-weight: 600;
+    text-align: center;
+    word-break: break-all;
+    color: #c6d2ff;
+  }
+  .mail-actions { display: flex; gap: 8px; }
+  .mail-actions .btn { flex: 1; text-align: center; }
+
   .tips {
     margin-top: 30px;
     background: var(--card);
@@ -251,7 +273,7 @@ const CONFIG = {
 <body>
 <div class="wrap">
   <header>
-    <div class="logo" id="logo"></div>
+    <img class="logo-img" src="logo.png" alt="白袜帝国">
     <h1 id="site-name"></h1>
     <p class="tagline" id="tagline"></p>
   </header>
@@ -299,7 +321,6 @@ const CONFIG = {
   document.getElementById("site-name").textContent = CONFIG.siteName;
   document.getElementById("tagline").textContent = CONFIG.tagline;
   document.getElementById("updated").textContent = CONFIG.updated;
-  document.getElementById("logo").textContent = (CONFIG.siteName || "?").trim().charAt(0).toUpperCase();
   document.title = CONFIG.siteName + " 官方发布页 · 请收藏本页";
 
   var now = (window.performance && performance.now)
@@ -517,6 +538,24 @@ const CONFIG = {
   if (hasTg || hasMail) {
     document.getElementById("contact-section").style.display = "";
     var contactList = document.getElementById("contact-list");
+    if (hasMail) {
+      var mail = CONFIG.contactEmail.trim();
+      var mc = document.createElement("div");
+      mc.className = "mail-card";
+      mc.innerHTML =
+        '<div class="mail-head"><span class="tg-icon mail">✉</span><div>' +
+        '<div class="mail-title">发邮件自动获取最新【免翻墙】地址</div>' +
+        '<div class="mail-desc">用你常用的任意邮箱（QQ、163 都可以）发送<b>任意内容</b>到下面地址，系统自动回复最新地址，<b>不用翻墙</b></div>' +
+        '</div></div>' +
+        '<div class="mail-addr"></div>' +
+        '<div class="mail-actions"><a class="btn primary">发邮件</a><button class="btn" type="button">复制邮箱</button></div>';
+      mc.querySelector(".mail-addr").textContent = mail;
+      mc.querySelector("a.btn").href = "mailto:" + mail;
+      mc.querySelector("button.btn").addEventListener("click", function () {
+        copyText(mail, "已复制邮箱 " + mail);
+      });
+      contactList.appendChild(mc);
+    }
     if (hasTg) {
       CONFIG.telegram.forEach(function (item) {
         var a = document.createElement("a");
@@ -531,23 +570,16 @@ const CONFIG = {
         contactList.appendChild(a);
       });
     }
-    if (hasMail) {
-      var mail = CONFIG.contactEmail.trim();
-      var m = document.createElement("a");
-      m.className = "tg-card";
-      m.href = "mailto:" + mail;
-      m.innerHTML = '<span class="tg-icon mail">✉</span><span class="tg-label"></span><span class="tg-arrow">›</span>';
-      m.querySelector(".tg-label").textContent = "备用邮箱：" + mail;
-      contactList.appendChild(m);
-    }
   }
 
   /* ---------- 兜底提示随配置变化 ---------- */
   var tipEl = document.getElementById("tip-fallback");
-  if (hasTg) {
-    tipEl.textContent = "如果所有域名都打不开，请通过上方 Telegram 获取最新地址。";
+  if (hasMail && hasTg) {
+    tipEl.textContent = "如果所有域名都打不开：给上方邮箱发一封邮件（内容随意）自动获取最新地址，或通过 Telegram 联系我们。";
   } else if (hasMail) {
-    tipEl.textContent = "如果所有域名都打不开，请发邮件到上方备用邮箱获取最新地址。";
+    tipEl.textContent = "如果所有域名都打不开：给上方邮箱发一封邮件（内容随意），系统会自动回复最新地址，发邮件不用翻墙。";
+  } else if (hasTg) {
+    tipEl.textContent = "如果所有域名都打不开，请通过上方 Telegram 获取最新地址。";
   } else {
     tipEl.textContent = "请提前把域名复制保存到手机备忘录，以防临时打不开。";
   }
