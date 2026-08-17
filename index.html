@@ -346,8 +346,8 @@ const CONFIG = {
     return url;
   }
   var GROUPS = [
-    { title: "永久地址", desc: "长期不变，认准这两个", domains: (CONFIG.permanentDomains || []).map(normalize) },
     { title: "最新地址", desc: "会不定期更换，打不开时看永久地址", domains: (CONFIG.latestDomains || []).map(normalize) },
+    { title: "永久地址", desc: "长期不变，认准这两个", domains: (CONFIG.permanentDomains || []).map(normalize) },
   ];
 
   /* ---------- Toast 提示 ---------- */
